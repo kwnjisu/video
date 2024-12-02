@@ -3,6 +3,9 @@
 <head>
     <meta charset="utf-8">
     <title>상체 관절 - 동작인식</title>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675469404/drawing_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675469404/camera_utils.js"></script>
     <style>
         body {
             margin: 0;
@@ -140,81 +143,8 @@
         .back-button:hover {
             background-color: rgb(222, 201, 18);
         }
-
-        .back-button::before {
-            content: "←";
-            margin-right: 10px;
-        }
-
-        .recording-status {
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 8px 15px;
-            border-radius: 20px;
-            z-index: 10;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .recording-status.active {
-            opacity: 1;
-        }
-
-        .recording-dot {
-            width: 12px;
-            height: 12px;
-            background-color: #F44336;
-            border-radius: 50%;
-            animation: blink 1s infinite;
-        }
-
-        .recording-time {
-            color: white;
-            font-size: 14px;
-        }
-
-        .control-buttons {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            display: flex;
-            gap: 10px;
-            z-index: 10;
-        }
-
-        .record-button {
-            background-color: #F44336;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            padding: 8px 15px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-weight: bold;
-            transition: background-color 0.3s;
-        }
-
-        .record-button.recording {
-            background-color: #4CAF50;
-        }
-
-        @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0.4; }
-            100% { opacity: 1; }
-        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/pose.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.3.1675469404/drawing_utils.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils@0.3.1675469404/camera_utils.js"></script>
 </head>
 <body>
     <header class="header">
@@ -236,7 +166,7 @@
                 <span class="recording-time" id="recordingTime"></span>
             </div>
             <video id="videoFeed" class="video-feed" autoplay playsinline style="display: none;"></video>
-            <canvas id="outputCanvas" class="video-feed"></canvas>
+            <canvas id="outputCanvas" class="video-feed" width="640" height="480"></canvas>
             <div class="control-buttons">
                 <button class="record-button" id="recordButton" onclick="toggleRecording()">
                     <span id="recordIcon">⚫</span>
@@ -253,9 +183,132 @@
     </main>
 
     <script>
+        let pose;
+        let camera;
+
+        async function initializePose() {
+            try {
+                pose = new Pose({
+                    locateFile: (file) => {
+                        return `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`;
+                    }
+                });
+
+                await pose.initialize();  // 초기화 대기
+
+                pose.setOptions({
+                    modelComplexity: 1,
+                    smoothLandmarks: true,
+                    minDetectionConfidence: 0.5,
+                    minTrackingConfidence: 0.5
+                });
+
+                pose.onResults(onResults);
+
+                const videoElement = document.getElementById('videoFeed');
+                const canvasElement = document.getElementById('outputCanvas');
+
+                camera = new Camera(videoElement, {
+                    onFrame: async () => {
+                        await pose.send({image: videoElement});
+                    },
+                    width: 640,
+                    height: 480
+                });
+
+                await camera.start();  // 카메라 시작 대기
+            } catch (error) {
+                console.error('Pose 초기화 오류:', error);
+            }
+        }
+
+        function onResults(results) {
+            const canvasElement = document.getElementById('outputCanvas');
+            const canvasCtx = canvasElement.getContext('2d');
+            
+            canvasCtx.save();
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            
+            // 카메라 피드 그리기
+            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
+            
+            // 포즈 랜드마크 그리기
+            if (results.poseLandmarks) {
+                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
+                    {color: '#00FF00', lineWidth: 2});
+                drawLandmarks(canvasCtx, results.poseLandmarks,
+                    {color: '#FF0000', lineWidth: 1, radius: 3});
+                    
+                // 기록 중일 때만 데이터 전송
+                if (recording) {
+                    // 관절 각도 계산
+                    const angles = calculateAngles(results.poseLandmarks);
+                    
+                    // 서버로 데이터 전송
+                    fetch('/api/update_joint_data', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            angles: angles,
+                            timestamp: new Date().toISOString()
+                        })
+                    });
+                }
+            }
+            
+            canvasCtx.restore();
+        }
+
+        // 관절 각도 계산 함수
+        function calculateAngles(landmarks) {
+            // 상체 관절 각도 계산
+            const angles = {
+                left_어깨: calculateAngle(
+                    [landmarks[11].x, landmarks[11].y], // 왼쪽 어깨
+                    [landmarks[13].x, landmarks[13].y], // 왼쪽 팔꿈치
+                    [landmarks[15].x, landmarks[15].y]  // 왼쪽 손목
+                ),
+                right_어깨: calculateAngle(
+                    [landmarks[12].x, landmarks[12].y],
+                    [landmarks[14].x, landmarks[14].y],
+                    [landmarks[16].x, landmarks[16].y]
+                ),
+                left_팔꿈치: calculateAngle(
+                    [landmarks[13].x, landmarks[13].y],
+                    [landmarks[15].x, landmarks[15].y],
+                    [landmarks[17].x, landmarks[17].y]
+                ),
+                right_팔꿈치: calculateAngle(
+                    [landmarks[14].x, landmarks[14].y],
+                    [landmarks[16].x, landmarks[16].y],
+                    [landmarks[18].x, landmarks[18].y]
+                )
+            };
+            
+            return angles;
+        }
+
+        // 각도 계산 함수
+        function calculateAngle(a, b, c) {
+            const radians = Math.atan2(c[1] - b[1], c[0] - b[0]) -
+                           Math.atan2(a[1] - b[1], a[0] - b[0]);
+            let angle = Math.abs(radians * 180.0 / Math.PI);
+            
+            if (angle > 180.0) {
+                angle = 360 - angle;
+            }
+            
+            return angle;
+        }
+
+        // 페이지 로드시 초기화
+        initializePose();
+
+        // 기존의 다른 JavaScript 코드들
         const videoContainer = document.getElementById('videoContainer');
         const fullscreenButton = document.getElementById('fullscreenButton');
-        const videoFeed = document.getElementById('videoFeed');
 
         fullscreenButton.addEventListener('click', () => {
             if (!document.fullscreenElement) {
@@ -336,90 +389,6 @@
         }
 
         setInterval(updateRecordingStatus, 1000);
-
-        videoFeed.onerror = function() {
-            console.error('비디오 피드 로딩 실패');
-            // 에러 메시지 표시
-            const container = document.querySelector('.video-container');
-            container.innerHTML = '<p style="color: red;">카메라를 시작할 수 없습니다.</p>';
-        };
-
-        // 웹캠 접근 코드
-        async function startVideo() {
-            try {
-                const stream = await navigator.mediaDevices.getUserMedia({ 
-                    video: true,
-                    audio: false
-                });
-                const videoElement = document.getElementById('videoFeed');
-                videoElement.srcObject = stream;
-            } catch (err) {
-                console.error('웹캠 접근 오류:', err);
-                const container = document.querySelector('.video-container');
-                container.innerHTML = '<p style="color: red;">카메라를 시작할 수 없습니다.</p>';
-            }
-        }
-
-        // 페이지 로드시 웹캠 시작
-        startVideo();
-
-        let pose;
-        let camera;
-
-        async function initializePose() {
-            pose = new Pose({
-                locateFile: (file) => {
-                    return `https://cdn.jsdelivr.net/npm/@mediapipe/pose@0.5.1675469404/${file}`;
-                }
-            });
-
-            pose.setOptions({
-                modelComplexity: 1,
-                smoothLandmarks: true,
-                minDetectionConfidence: 0.5,
-                minTrackingConfidence: 0.5
-            });
-
-            pose.onResults(onResults);
-
-            const videoElement = document.getElementById('videoFeed');
-            const canvasElement = document.getElementById('outputCanvas');
-            const canvasCtx = canvasElement.getContext('2d');
-
-            camera = new Camera(videoElement, {
-                onFrame: async () => {
-                    await pose.send({image: videoElement});
-                },
-                width: 640,
-                height: 480
-            });
-
-            camera.start();
-        }
-
-        function onResults(results) {
-            const canvasElement = document.getElementById('outputCanvas');
-            const canvasCtx = canvasElement.getContext('2d');
-            
-            canvasCtx.save();
-            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-            
-            // 카메라 피드 그리기
-            canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-            
-            // 포즈 랜드마크 그리기
-            if (results.poseLandmarks) {
-                drawConnectors(canvasCtx, results.poseLandmarks, POSE_CONNECTIONS,
-                    {color: '#00FF00', lineWidth: 2});
-                drawLandmarks(canvasCtx, results.poseLandmarks,
-                    {color: '#FF0000', lineWidth: 1, radius: 3});
-            }
-            
-            canvasCtx.restore();
-        }
-
-        // 페이지 로드시 초기화
-        initializePose();
     </script>
 </body>
 </html> 
