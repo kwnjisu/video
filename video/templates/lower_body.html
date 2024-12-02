@@ -186,6 +186,12 @@
     </header>
 
     <main class="main-content">
+        <div class="title-section">
+            <h1 class="title">
+                하체 관절 <span class="highlight">측정</span>
+            </h1>
+        </div>
+
         <div class="video-container" id="videoContainer">
             <div class="recording-status" id="recordingStatus">
                 <span class="recording-dot"></span>
@@ -290,6 +296,12 @@
         }
 
         setInterval(updateRecordingStatus, 1000);
+
+        videoFeed.onerror = function() {
+            console.error('비디오 피드 로딩 실패');
+            const container = document.querySelector('.video-container');
+            container.innerHTML = '<p style="color: red;">카메라를 시작할 수 없습니다.</p>';
+        };
     </script>
 </body>
 </html> 
