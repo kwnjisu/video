@@ -194,8 +194,6 @@
                     }
                 });
 
-                await pose.initialize();  // 초기화 대기
-
                 pose.setOptions({
                     modelComplexity: 1,
                     smoothLandmarks: true,
@@ -216,7 +214,7 @@
                     height: 480
                 });
 
-                await camera.start();  // 카메라 시작 대기
+                camera.start();
             } catch (error) {
                 console.error('Pose 초기화 오류:', error);
             }
