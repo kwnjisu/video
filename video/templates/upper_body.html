@@ -232,7 +232,7 @@
                 <span class="recording-dot"></span>
                 <span class="recording-time" id="recordingTime"></span>
             </div>
-            <img src="{{ url_for('video_feed_upper') }}" class="video-feed" id="videoFeed">
+            <video id="videoFeed" class="video-feed" autoplay playsinline></video>
             <div class="control-buttons">
                 <button class="record-button" id="recordButton" onclick="toggleRecording()">
                     <span id="recordIcon">⚫</span>
@@ -339,6 +339,25 @@
             const container = document.querySelector('.video-container');
             container.innerHTML = '<p style="color: red;">카메라를 시작할 수 없습니다.</p>';
         };
+
+        // 웹캠 접근 코드
+        async function startVideo() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ 
+                    video: true,
+                    audio: false
+                });
+                const videoElement = document.getElementById('videoFeed');
+                videoElement.srcObject = stream;
+            } catch (err) {
+                console.error('웹캠 접근 오류:', err);
+                const container = document.querySelector('.video-container');
+                container.innerHTML = '<p style="color: red;">카메라를 시작할 수 없습니다.</p>';
+            }
+        }
+
+        // 페이지 로드시 웹캠 시작
+        startVideo();
     </script>
 </body>
 </html> 
