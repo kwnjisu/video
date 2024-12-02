@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>StrongX - 동작인식</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Orbitron', sans-serif;
+            background-color: black;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px 0;
+            border-bottom: 1px solid rgb(26, 26, 26);
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            color: rgb(239, 217, 21);
+            font-size: 22px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .content {
+            padding-top: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 100px);
+        }
+
+        .video-container {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            border-radius: 20px;
+            padding: 10px;
+            margin-bottom: 30px;
+            backdrop-filter: blur(10px);
+            position: relative;
+        }
+
+        .video-feed {
+            border-radius: 10px;
+            display: block;
+        }
+
+        .fullscreen-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(239, 217, 21, 0.8);
+            border: none;
+            border-radius: 5px;
+            padding: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .fullscreen-button:hover {
+            background-color: rgb(239, 217, 21);
+        }
+
+        .fullscreen-icon {
+            width: 24px;
+            height: 24px;
+            fill: rgb(41, 41, 41);
+        }
+
+        .video-container.fullscreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            z-index: 2000;
+            background-color: black;
+        }
+
+        .video-container.fullscreen .video-feed {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            border-radius: 0;
+        }
+
+        .back-button {
+            background-color: rgb(239, 217, 21);
+            color: rgb(41, 41, 41);
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: rgb(222, 201, 18);
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">어깨 관절</a>
+        </nav>
+    </header>
+
+    <main class="content">
+        <div class="video-container" id="videoContainer">
+            <img src="{{ url_for('video_feed') }}" class="video-feed" width="640" height="480" id="videoFeed">
+            <button class="fullscreen-button" id="fullscreenButton" title="전체화면">
+                <svg class="fullscreen-icon" viewBox="0 0 24 24">
+                    <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                </svg>
+            </button>
+        </div>
+        <a href="/" class="back-button">돌아가기</a>
+    </main>
+
+    <script>
+        const videoContainer = document.getElementById('videoContainer');
+        const fullscreenButton = document.getElementById('fullscreenButton');
+        const videoFeed = document.getElementById('videoFeed');
+
+        fullscreenButton.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                if (videoContainer.requestFullscreen) {
+                    videoContainer.requestFullscreen();
+                } else if (videoContainer.webkitRequestFullscreen) {
+                    videoContainer.webkitRequestFullscreen();
+                } else if (videoContainer.msRequestFullscreen) {
+                    videoContainer.msRequestFullscreen();
+                }
+                videoContainer.classList.add('fullscreen');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                videoContainer.classList.remove('fullscreen');
+            }
+        });
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement) {
+                videoContainer.classList.remove('fullscreen');
+            }
+        }
+    </script>
+</body>
+</html> 

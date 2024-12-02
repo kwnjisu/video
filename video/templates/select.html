@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>서비스 선택 - StrongX</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Orbitron', sans-serif;
+            background-color: black;
+            color: white;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px 0;
+            border-bottom: 1px solid rgb(26, 26, 26);
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            color: rgb(239, 217, 21);
+            font-size: 22px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .services-section {
+            padding-top: 100px;
+            min-height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8));
+        }
+
+        .section-title {
+            text-align: center;
+            color: rgb(239, 217, 21);
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+
+        .section-description {
+            text-align: center;
+            color: white;
+            font-size: 18px;
+            max-width: 800px;
+            margin: 0 auto 60px;
+            padding: 0 20px;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .service-card {
+            position: relative;
+            height: 400px;
+            overflow: hidden;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .service-card:hover {
+            transform: translateY(-10px);
+        }
+
+        .service-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: brightness(0.7);
+            transition: filter 0.3s;
+        }
+
+        .service-card:hover .service-image {
+            filter: brightness(0.5);
+        }
+
+        .service-content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            padding: 30px;
+            background: linear-gradient(transparent, rgba(0,0,0,0.9));
+        }
+
+        .service-title {
+            color: rgb(239, 217, 21);
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .service-description {
+            color: white;
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .service-link {
+            display: inline-block;
+            background-color: rgb(239, 217, 21);
+            color: black;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .service-link:hover {
+            background-color: rgb(255, 234, 47);
+        }
+
+        @media (max-width: 900px) {
+            .services-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">StrongX</a>
+        </nav>
+    </header>
+
+    <section class="services-section">
+        <h1 class="section-title">OUR SERVICES</h1>
+        <p class="section-description">
+            StrongX는 당신의 운동을 더욱 효과적이고 정확하게 만들어드립니다.
+            원하시는 서비스를 선택해주세요.
+        </p>
+
+        <div class="services-grid">
+            <div class="service-card">
+                <img src="https://images.unsplash.com/photo-1581009146145-b5ef050c2e1e?w=800" 
+                     alt="상체 운동" 
+                     class="service-image">
+                <div class="service-content">
+                    <h3 class="service-title">상체 관절</h3>
+                    <p class="service-description">
+                        어깨, 팔꿈치, 손목의 각도를 실시간으로 측정하고 분석합니다.
+                    </p>
+                    <a href="/upper_body" class="service-link">시작하기</a>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <img src="https://images.unsplash.com/photo-1434608519344-49d77a699e1d?w=800" 
+                     alt="하체 운동" 
+                     class="service-image">
+                <div class="service-content">
+                    <h3 class="service-title">하체 관절</h3>
+                    <p class="service-description">
+                        고관절, 무릎, 발목의 각도를 실시간으로 측정하고 분석합니다.
+                    </p>
+                    <a href="/lower_body" class="service-link">시작하기</a>
+                </div>
+            </div>
+
+            <div class="service-card">
+                <img src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800" 
+                     alt="데이터 분석" 
+                     class="service-image">
+                <div class="service-content">
+                    <h3 class="service-title">관절 데이터</h3>
+                    <p class="service-description">
+                        실시간으로 측정된 관절 각도 데이터를 표로 확인하세요.
+                    </p>
+                    <a href="/joint_data" class="service-link">데이터 보기</a>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html> 

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>StrongX - 동작인식 프레이닝</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Orbitron', sans-serif;
+            background-color: black;
+            color: white;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px 0;
+            border-bottom: 1px solid rgb(26, 26, 26);
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            color: rgb(239, 217, 21);
+            font-size: 22px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .hero-section {
+            min-height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                        url('https://framerusercontent.com/images/mQQvrq8NMRY7rWMxsKhWbEmR8dM.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .hero-title {
+            font-size: 64px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .highlight {
+            color: rgb(239, 217, 21);
+        }
+
+        .hero-description {
+            font-size: 20px;
+            color: rgb(200, 200, 200);
+            max-width: 600px;
+            margin-bottom: 40px;
+            line-height: 1.6;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .cta-button {
+            background-color: rgb(239, 217, 21);
+            color: rgb(41, 41, 41);
+            padding: 15px 30px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .cta-button:hover {
+            background-color: rgb(222, 201, 18);
+        }
+
+        .cta-button.secondary {
+            background-color: transparent;
+            border: 2px solid rgb(239, 217, 21);
+            color: rgb(239, 217, 21);
+        }
+
+        .cta-button.secondary:hover {
+            background-color: rgba(239, 217, 21, 0.1);
+        }
+
+        .features-section {
+            padding: 100px 0;
+            background-color: rgb(18, 18, 18);
+        }
+
+        .features-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
+        }
+
+        .feature-card {
+            background-color: rgb(26, 26, 26);
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            color: rgb(239, 217, 21);
+            margin-bottom: 20px;
+        }
+
+        .feature-title {
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .feature-description {
+            color: rgb(200, 200, 200);
+            line-height: 1.6;
+        }
+
+        .testimonials-section {
+            padding: 100px 0;
+            background-color: black;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 36px;
+            margin-bottom: 60px;
+        }
+
+        .testimonials-grid {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 40px;
+        }
+
+        .testimonial-card {
+            background-color: rgb(26, 26, 26);
+            padding: 30px;
+            border-radius: 15px;
+        }
+
+        .testimonial-text {
+            font-size: 18px;
+            color: rgb(200, 200, 200);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .testimonial-author {
+            color: rgb(239, 217, 21);
+            font-weight: bold;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">StrongX</a>
+        </nav>
+    </header>
+
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1 class="hero-title">
+                수혁아 팀 <span class="highlight">프로젝트</span><br>
+                동작인식 <span class="highlight">트레이닝</span>
+            </h1>
+            <p class="hero-description">
+                AI 기반 동작인식 기술로 당신의 운동 자세를 실시간으로 분석하고 교정해드립니다.
+                더 효과적이고 안전한 운동을 시작하세요.
+            </p>
+            <div class="cta-buttons">
+                <a href="/select" class="cta-button">시작하기</a>
+                <a href="#features" class="cta-button secondary">자세히 보기</a>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features-section">
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3 class="feature-title">실시간 자세 분석</h3>
+                <p class="feature-description">
+                    AI가 실시간으로 당신의 운동 자세를 분석하고 피드백을 제공합니다.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h3 class="feature-title">정확한 각도 측정</h3>
+                <p class="feature-description">
+                    관절의 각도를 정확하게 측정하여 올바른 자세를 유지하도록 도와줍니다.
+                </p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">💪</div>
+                <h3 class="feature-title">맞춤형 트레이닝</h3>
+                <p class="feature-description">
+                    상체와 하체 운동을 선택하여 원하는 부위를 집중적으로 트레이닝할 수 있습니다.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <section class="testimonials-section">
+        <h2 class="section-title">사용자 후기</h2>
+        <div class="testimonials-grid">
+            <div class="testimonial-card">
+                <p class="testimonial-text">
+                    "실시간으로 자세를 확인할 수 있어서 너무 좋아요. 혼자 운동할 때도 자신감이 생겼습니다!"
+                </p>
+                <p class="testimonial-author">김OO님</p>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-text">
+                    "관절 각도를 정확하게 측정해주어서 운동 자세가 많이 교정되었습니다."
+                </p>
+                <p class="testimonial-author">이OO님</p>
+            </div>
+            <div class="testimonial-card">
+                <p class="testimonial-text">
+                    "PT 받는 것처럼 실시간으로 피드백을 받을 수 있어서 매우 만족스럽습니다."
+                </p>
+                <p class="testimonial-author">박OO님</p>
+            </div>
+        </div>
+    </section>
+</body>
+</html> 

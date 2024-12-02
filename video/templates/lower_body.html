@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="utf-8">
+    <title>하체 관절 - 동작인식</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Orbitron', sans-serif;
+            background-color: black;
+            color: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.9);
+            padding: 20px 0;
+            border-bottom: 1px solid rgb(26, 26, 26);
+            z-index: 1000;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .logo {
+            color: rgb(239, 217, 21);
+            font-size: 22px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .main-content {
+            min-height: 100vh;
+            background: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)),
+                        url('https://framerusercontent.com/images/mQQvrq8NMRY7rWMxsKhWbEmR8dM.jpg');
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding-top: 100px;
+        }
+
+        .video-container {
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(239, 217, 21, 0.3);
+            border-radius: 20px;
+            padding: 15px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            margin-bottom: 30px;
+        }
+
+        .video-container.fullscreen {
+            padding: 0;
+            border: none;
+            border-radius: 0;
+            background: black;
+            width: 100vw !important;
+            height: 100vh !important;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .video-feed {
+            border-radius: 10px;
+            display: block;
+            max-width: 100%;
+            height: auto;
+        }
+
+        .recording-status {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 8px 15px;
+            border-radius: 20px;
+            z-index: 10;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .recording-status.active {
+            opacity: 1;
+        }
+
+        .recording-dot {
+            width: 12px;
+            height: 12px;
+            background-color: #F44336;
+            border-radius: 50%;
+            animation: blink 1s infinite;
+        }
+
+        .recording-time {
+            color: white;
+            font-size: 14px;
+        }
+
+        .control-buttons {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10;
+        }
+
+        .record-button {
+            background-color: #F44336;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .record-button.recording {
+            background-color: #4CAF50;
+        }
+
+        .fullscreen-button {
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            border-radius: 5px;
+            padding: 8px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .fullscreen-icon {
+            width: 24px;
+            height: 24px;
+            fill: white;
+        }
+
+        .back-button {
+            background-color: rgb(239, 217, 21);
+            color: black;
+            text-decoration: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: rgb(255, 234, 47);
+        }
+
+        @keyframes blink {
+            0% { opacity: 1; }
+            50% { opacity: 0.4; }
+            100% { opacity: 1; }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <a href="/" class="logo">StrongX</a>
+        </nav>
+    </header>
+
+    <main class="main-content">
+        <div class="video-container" id="videoContainer">
+            <div class="recording-status" id="recordingStatus">
+                <span class="recording-dot"></span>
+                <span class="recording-time" id="recordingTime"></span>
+            </div>
+            <img src="{{ url_for('video_feed_lower') }}" class="video-feed" id="videoFeed">
+            <div class="control-buttons">
+                <button class="record-button" id="recordButton" onclick="toggleRecording()">
+                    <span id="recordIcon">⚫</span>
+                    <span id="recordText">기록 시작</span>
+                </button>
+                <button class="fullscreen-button" id="fullscreenButton" title="전체화면">
+                    <svg class="fullscreen-icon" viewBox="0 0 24 24">
+                        <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <a href="/select" class="back-button">선택 화면으로</a>
+    </main>
+
+    <script>
+        let recording = false;
+        const videoContainer = document.getElementById('videoContainer');
+        const fullscreenButton = document.getElementById('fullscreenButton');
+        const videoFeed = document.getElementById('videoFeed');
+        
+        function toggleRecording() {
+            const button = document.getElementById('recordButton');
+            const text = document.getElementById('recordText');
+            const status = document.getElementById('recordingStatus');
+            
+            if (!recording) {
+                fetch('/api/start_recording/lower')
+                    .then(response => response.json())
+                    .then(data => {
+                        recording = true;
+                        button.classList.add('recording');
+                        status.classList.add('active');
+                        text.textContent = '기록 중지';
+                    });
+            } else {
+                fetch('/api/stop_recording/lower')
+                    .then(response => response.json())
+                    .then(data => {
+                        recording = false;
+                        button.classList.remove('recording');
+                        status.classList.remove('active');
+                        text.textContent = '기록 시작';
+                        document.getElementById('recordingTime').textContent = '';
+                        window.location.href = '/joint_data';
+                    });
+            }
+        }
+
+        function updateRecordingStatus() {
+            if (recording) {
+                fetch('/api/recording_status')
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.recording) {
+                            document.getElementById('recordingTime').textContent = 
+                                `기록 시간: ${data.elapsed_time}`;
+                        }
+                    });
+            }
+        }
+
+        fullscreenButton.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                if (videoContainer.requestFullscreen) {
+                    videoContainer.requestFullscreen();
+                } else if (videoContainer.webkitRequestFullscreen) {
+                    videoContainer.webkitRequestFullscreen();
+                } else if (videoContainer.msRequestFullscreen) {
+                    videoContainer.msRequestFullscreen();
+                }
+                videoContainer.classList.add('fullscreen');
+            } else {
+                if (document.exitFullscreen) {
+                    document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                } else if (document.msExitFullscreen) {
+                    document.msExitFullscreen();
+                }
+                videoContainer.classList.remove('fullscreen');
+            }
+        });
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+        function handleFullscreenChange() {
+            if (!document.fullscreenElement) {
+                videoContainer.classList.remove('fullscreen');
+            } else {
+                videoContainer.classList.add('fullscreen');
+            }
+        }
+
+        setInterval(updateRecordingStatus, 1000);
+    </script>
+</body>
+</html> 
