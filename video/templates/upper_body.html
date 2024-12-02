@@ -332,6 +332,13 @@
         }
 
         setInterval(updateRecordingStatus, 1000);
+
+        videoFeed.onerror = function() {
+            console.error('비디오 피드 로딩 실패');
+            // 에러 메시지 표시
+            const container = document.querySelector('.video-container');
+            container.innerHTML = '<p style="color: red;">카메라를 시작할 수 없습니다.</p>';
+        };
     </script>
 </body>
 </html> 
