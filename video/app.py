@@ -8,6 +8,7 @@ import time
 import threading
 from queue import Queue
 import copy
+import os
 
 app = Flask(__name__)
 
@@ -182,7 +183,17 @@ def process_frame_thread(body_part):
             processed_frame = frame.copy()
 
 def generate_frames(body_part):
-    camera = cv2.VideoCapture(0)
+    # 로컬 테스트용
+    if os.environ.get('ENVIRONMENT') == 'local':
+        camera = cv2.VideoCapture(0)
+    else:
+        # 클라우드 환경용
+        camera = cv2.VideoCapture(0, cv2.CAP_V4L2)  # Linux 환경용
+        
+    if not camera.isOpened():
+        print("카메라를 열 수 없습니다.")
+        return
+    
     camera.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
     camera.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
     camera.set(cv2.CAP_PROP_FPS, 30)
@@ -260,8 +271,12 @@ def joint_data():
 
 @app.route('/video_feed_upper')
 def video_feed_upper():
-    return Response(generate_frames('upper'),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
+    try:
+        return Response(generate_frames('upper'),
+                       mimetype='multipart/x-mixed-replace; boundary=frame')
+    except Exception as e:
+        print(f"비디오 피드 에러: {e}")
+        return "비디오 스트림을 시작할 수 없습니다", 500
 
 @app.route('/video_feed_lower')
 def video_feed_lower():
@@ -275,7 +290,7 @@ def start_recording(body_part):
     is_recording = True
     recording_start_time = datetime.now()
     current_recording_type = body_part
-    joint_data = []  # 새운 기록 시작시 데이터 초기화
+    joint_data = []  # 새 기록 시작시 데이터 초기화
     
     return jsonify({"status": "success", "message": f"{body_part} 기록 시작"})
 
