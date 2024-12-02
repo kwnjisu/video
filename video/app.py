@@ -347,4 +347,5 @@ def save_joint_data():
         print(f"데이터 저장 중 오류 발생: {e}")
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
